@@ -10,6 +10,8 @@
 
 #include "dl_patching.h"
 
+#include "playermodelmanager_api.h"
+
 u64 savedLink_005C40[32];
 u64 savedLink_005D80[16];
 extern u64 object_link_child_Tex_005C40[];
@@ -20,6 +22,12 @@ Color_RGB8 savedDekuTunicColor;
 Color_RGB8 savedGoronTunicColor;
 Color_RGB8 savedZoraTunicColor;
 Color_RGB8 savedFDTunicColor;
+
+static bool is_player_model_manager_loaded = false;
+
+RECOMP_CALLBACK("*", recomp_on_init) void check_if_player_model_manager_loaded() {
+    is_player_model_manager_loaded = recomp_is_dependency_met(YAZMT_PMM_MOD_NAME) == DEPENDENCY_STATUS_FOUND;
+}
 
 RECOMP_IMPORT("*", void recomp_set_fd_anywhere(bool new_val));
 
@@ -176,6 +184,11 @@ Gfx* updateFormEnvColor(Gfx* dl, PlayerTransformation form)
     }
     
     gDPSetEnvColor(dl++, color->r, color->g, color->b, 255);
+
+    if (is_player_model_manager_loaded) {
+        PlayerModelManager_requestOverrideTunicColor(color->r, color->g, color->b, 255);
+    }
+
     return dl;
 }
 
