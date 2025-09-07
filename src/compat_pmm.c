@@ -6,9 +6,10 @@
 #include "dl_patching.h"
 #include "compat_pmm.h"
 
-RECOMP_CALLBACK("*", recomp_on_init)
-void check_if_player_model_manager_loaded() {
-    is_player_model_manager_loaded = recomp_is_dependency_met(YAZMT_PMM_MOD_NAME) == DEPENDENCY_STATUS_FOUND && recomp_is_dependency_met(YAZMT_Z64_GLOBAL_OBJECTS_MOD_NAME);
+bool is_player_model_manager_loaded = false;
+
+RECOMP_CALLBACK("*", recomp_on_init) void check_if_player_model_manager_loaded() {
+    is_player_model_manager_loaded = recomp_is_dependency_met(YAZMT_PMM_MOD_NAME) == DEPENDENCY_STATUS_FOUND && recomp_is_dependency_met(YAZMT_Z64_GLOBAL_OBJECTS_MOD_NAME) == DEPENDENCY_STATUS_FOUND;
 }
 
 #define LINK_R 30

@@ -292,7 +292,7 @@ void Recolor_OverrideLimbDrawFirstPerson(PlayState* play, s32 limbIndex, Gfx** d
 
 RECOMP_HOOK_RETURN("Player_OverrideLimbDrawGameplayDefault")
 void Recolor_AfterOverrideLimbDrawDefault() {
-    if (curDList != NULL && *curDList < (Gfx*)K0BASE && *curDList != NULL && patchingPlayerDls) {
+    if (curDList != NULL && *curDList < (Gfx*)K0BASE && patchingPlayerDls) {
         // Get the real address of the displaylist.
         Gfx* toPatch = (Gfx*)Lib_SegmentedToVirtual(*curDList);
 
