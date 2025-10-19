@@ -91,6 +91,17 @@ void patch_colors_on_return_DmaMgr_ProcessRequest() {
         void (*replace_func)(Gfx *, s32) = NULL;
 
         switch (id) {
+            case GAMEPLAY_KEEP: {
+                Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, gameplay_keep_DL_06FE20);
+                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
+                replace_zora_boomerang(toPatch, 0);
+
+                toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, gameplay_keep_DL_06FF68);
+                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
+                replace_zora_boomerang(toPatch, 1);
+            }
+            break;
+
             case OBJECT_LINK_BOY:
                 replace_func = replace_fd;
                 form = PLAYER_FORM_FIERCE_DEITY;
@@ -127,14 +138,6 @@ void patch_colors_on_return_DmaMgr_ProcessRequest() {
                 patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
                 replace_zora_fins(toPatch, 4);
 
-                toPatch = (Gfx *)Lib_SegmentedToVirtual(gameplay_keep_DL_06FE20);
-                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
-                replace_zora_boomerang(toPatch, 0);
-
-                toPatch = (Gfx *)Lib_SegmentedToVirtual(gameplay_keep_DL_06FF68);
-                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
-                replace_zora_boomerang(toPatch, 1);
-
                 replace_func = replace_zora;
                 form = PLAYER_FORM_ZORA;
             }
@@ -163,8 +166,6 @@ void patch_colors_on_return_DmaMgr_ProcessRequest() {
                 Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, limb->dLists[0]);
 
                 if (toPatch) {
-                    recomp_printf("Patching player limb %d\n", i);
-
                     patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[form][0]);
 
                     replace_func(toPatch, i);
