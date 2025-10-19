@@ -99,8 +99,8 @@ void patch_colors_on_return_DmaMgr_ProcessRequest() {
                 toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, gameplay_keep_DL_06FF68);
                 patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
                 replace_zora_boomerang(toPatch, 1);
+                break;
             }
-            break;
 
             case OBJECT_LINK_BOY:
                 replace_func = replace_fd;
@@ -114,8 +114,8 @@ void patch_colors_on_return_DmaMgr_ProcessRequest() {
                 Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, gLinkGoronCurledDL);
                 patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_GORON][0]);
                 replace_goron_roll(toPatch);
-            }
                 break;
+            }
 
             case OBJECT_LINK_ZORA: {
                 Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_00CC38);
@@ -140,17 +140,19 @@ void patch_colors_on_return_DmaMgr_ProcessRequest() {
 
                 replace_func = replace_zora;
                 form = PLAYER_FORM_ZORA;
-            }
                 break;
+            }
 
-            case OBJECT_LINK_NUTS:
+            case OBJECT_LINK_NUTS: {
                 replace_func = replace_deku;
                 form = PLAYER_FORM_DEKU;
                 break;
+            }
 
-            case OBJECT_LINK_CHILD:
+            case OBJECT_LINK_CHILD: {
                 form = PLAYER_FORM_HUMAN;
                 break;
+            }
 
             default:
                 return;
