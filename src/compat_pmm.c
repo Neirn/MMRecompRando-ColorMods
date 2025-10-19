@@ -83,94 +83,96 @@ void patch_colors_on_DmaMgr_ProcessRequest(DmaRequest *req) {
 
 RECOMP_HOOK_RETURN("DmaMgr_ProcessRequest")
 void patch_colors_on_return_DmaMgr_ProcessRequest() {
-    ObjectId id;
+    if (is_global_objects_loaded) {
+        ObjectId id;
 
-    if (GlobalObjects_getObjectIdFromVrom(dma_request_info.vromAddr, &id)) {
-        PlayerTransformation form;
+        if (GlobalObjects_getObjectIdFromVrom(dma_request_info.vromAddr, &id)) {
+            PlayerTransformation form;
 
-        void (*replace_func)(Gfx *, s32) = NULL;
+            void (*replace_func)(Gfx *, s32) = NULL;
 
-        switch (id) {
-            case GAMEPLAY_KEEP: {
-                Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, gameplay_keep_DL_06FE20);
-                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
-                replace_zora_boomerang(toPatch, 0);
+            switch (id) {
+                case GAMEPLAY_KEEP: {
+                    Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, gameplay_keep_DL_06FE20);
+                    patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
+                    replace_zora_boomerang(toPatch, 0);
 
-                toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, gameplay_keep_DL_06FF68);
-                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
-                replace_zora_boomerang(toPatch, 1);
-                break;
+                    toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, gameplay_keep_DL_06FF68);
+                    patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
+                    replace_zora_boomerang(toPatch, 1);
+                    break;
+                }
+
+                case OBJECT_LINK_BOY:
+                    replace_func = replace_fd;
+                    form = PLAYER_FORM_FIERCE_DEITY;
+                    break;
+
+                case OBJECT_LINK_GORON: {
+                    replace_func = replace_goron;
+                    form = PLAYER_FORM_GORON;
+
+                    Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, gLinkGoronCurledDL);
+                    patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_GORON][0]);
+                    replace_goron_roll(toPatch);
+                    break;
+                }
+
+                case OBJECT_LINK_ZORA: {
+                    Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_00CC38);
+                    patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
+                    replace_zora_fins(toPatch, 0);
+
+                    toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_00CDA0);
+                    patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
+                    replace_zora_fins(toPatch, 1);
+
+                    toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_010868);
+                    patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
+                    replace_zora_fins(toPatch, 2);
+
+                    toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_010978);
+                    patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
+                    replace_zora_fins(toPatch, 3);
+
+                    toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_0110A8);
+                    patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
+                    replace_zora_fins(toPatch, 4);
+
+                    replace_func = replace_zora;
+                    form = PLAYER_FORM_ZORA;
+                    break;
+                }
+
+                case OBJECT_LINK_NUTS: {
+                    replace_func = replace_deku;
+                    form = PLAYER_FORM_DEKU;
+                    break;
+                }
+
+                case OBJECT_LINK_CHILD: {
+                    form = PLAYER_FORM_HUMAN;
+                    break;
+                }
+
+                default:
+                    return;
+                    break;
             }
 
-            case OBJECT_LINK_BOY:
-                replace_func = replace_fd;
-                form = PLAYER_FORM_FIERCE_DEITY;
-                break;
+            if (replace_func) {
+                FlexSkeletonHeader *skel = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, forms_information[form].skel);
+                void **limbs = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, skel->sh.segment);
 
-            case OBJECT_LINK_GORON: {
-                replace_func = replace_goron;
-                form = PLAYER_FORM_GORON;
+                for (s32 i = 1; i < PLAYER_LIMB_MAX; ++i) {
+                    LodLimb *limb = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, limbs[i - 1]);
+                    Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, limb->dLists[0]);
 
-                Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, gLinkGoronCurledDL);
-                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_GORON][0]);
-                replace_goron_roll(toPatch);
-                break;
-            }
+                    if (toPatch) {
+                        patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[form][0]);
 
-            case OBJECT_LINK_ZORA: {
-                Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_00CC38);
-                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
-                replace_zora_fins(toPatch, 0);
-
-                toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_00CDA0);
-                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
-                replace_zora_fins(toPatch, 1);
-
-                toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_010868);
-                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
-                replace_zora_fins(toPatch, 2);
-
-                toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_010978);
-                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
-                replace_zora_fins(toPatch, 3);
-
-                toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, object_link_zora_DL_0110A8);
-                patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[PLAYER_FORM_ZORA][0]);
-                replace_zora_fins(toPatch, 4);
-
-                replace_func = replace_zora;
-                form = PLAYER_FORM_ZORA;
-                break;
-            }
-
-            case OBJECT_LINK_NUTS: {
-                replace_func = replace_deku;
-                form = PLAYER_FORM_DEKU;
-                break;
-            }
-
-            case OBJECT_LINK_CHILD: {
-                form = PLAYER_FORM_HUMAN;
-                break;
-            }
-
-            default:
-                return;
-                break;
-        }
-
-        if (replace_func) {
-            FlexSkeletonHeader *skel = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, forms_information[form].skel);
-            void **limbs = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, skel->sh.segment);
-
-            for (s32 i = 1; i < PLAYER_LIMB_MAX; ++i) {
-                LodLimb *limb = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, limbs[i - 1]);
-                Gfx *toPatch = SEGMENTED_TO_GLOBAL_PTR(dma_request_info.dramAddr, limb->dLists[0]);
-
-                if (toPatch) {
-                    patch_prim_color_with_dl(toPatch, LINK_R, LINK_G, LINK_B, LINK_A, &prim_color_dls[form][0]);
-
-                    replace_func(toPatch, i);
+                        replace_func(toPatch, i);
+                    }
                 }
             }
         }
