@@ -40,9 +40,15 @@ Gfx goron_texture_commands[] = {
 };
 
 Gfx goron_texture_replacement[] = {
-    gsDPLoadTextureBlock(Goron_Tunic_I, G_IM_FMT_I, G_IM_SIZ_8b, 8, 16, 0, G_TX_NOMIRROR |
-                         G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, 3, 4, G_TX_NOLOD, G_TX_NOLOD),
-    gsSPDisplayList(&prim_color_dls[PLAYER_FORM_GORON]),
+    gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, TEXEL0, ENVIRONMENT, 0, COMBINED, 0, 0, 0, 0, COMBINED),
+    gsDPLoadTextureBlock(Goron_Tunic_I, G_IM_FMT_I, G_IM_SIZ_8b, 8, 16, 0, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, 3, 4, G_TX_NOLOD, G_TX_NOLOD),
+    gsSPDisplayList(&env_color_dls[PLAYER_FORM_GORON]),
+    gsSPEndDisplayList(),
+};
+
+Gfx goron_waist_replacement[] = {
+    gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, TEXEL0, ENVIRONMENT, 0, COMBINED, 0, 0, 0, 0, COMBINED),
+    gsSPDisplayList(&env_color_dls[PLAYER_FORM_GORON]),
     gsSPEndDisplayList(),
 };
 
@@ -50,7 +56,7 @@ void replace_goron(Gfx* toPatch, s32 curLimbIndex) {
     switch (curLimbIndex) {
         case LINK_GORON_LIMB_WAIST:
             // Replace the white prim color in the waist DL with a jump to the current Goron color.
-            patch_prim_color_with_dl(toPatch, 255, 255, 255, 255, &prim_color_dls[PLAYER_FORM_GORON][0]);
+            patch_prim_color_with_dl(toPatch, 255, 255, 255, 255, goron_waist_replacement);
             replace_dl_commands_jump(toPatch, goron_texture_commands, goron_texture_replacement, ARRAY_COUNT(goron_texture_commands));
             break;
         case LINK_GORON_LIMB_HAT:

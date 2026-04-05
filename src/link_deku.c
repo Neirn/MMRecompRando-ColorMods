@@ -72,10 +72,11 @@ Gfx deku_waist_commands[] = {
 };
 
 Gfx deku_waist_replacement[] = {
+    gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, TEXEL0, ENVIRONMENT, 0, COMBINED, 0, 0, 0, 0, COMBINED),
     gsDPSetTextureLUT(G_TT_NONE),
     gsDPLoadTextureBlock(savedLink_005C40, G_IM_FMT_I, G_IM_SIZ_8b, 16, 16, 0, G_TX_NOMIRROR | G_TX_CLAMP,
                          G_TX_NOMIRROR | G_TX_CLAMP, 4, 4, G_TX_NOLOD, G_TX_NOLOD),
-    gsSPDisplayList(&prim_color_dls[PLAYER_FORM_DEKU]),
+    gsSPDisplayList(&env_color_dls[PLAYER_FORM_DEKU]),
     gsSPEndDisplayList(),
 };
 

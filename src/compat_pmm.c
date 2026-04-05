@@ -63,7 +63,7 @@ GLOBAL_OBJECTS_CALLBACK_ON_READY void on_global_objects_loaded() {
 
         if (obj) {
             GlobalObjects_globalizeLodLimbSkeleton(obj, forms_information[i].skel);
-            patch_link_skeleton_dls(SEGMENTED_TO_GLOBAL_PTR(obj, forms_information[i].skel), i);
+            // patch_link_skeleton_dls(SEGMENTED_TO_GLOBAL_PTR(obj, forms_information[i].skel), i);
         }
     }
 }
