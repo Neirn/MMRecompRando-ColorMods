@@ -178,12 +178,15 @@ Gfx* updateFormEnvColor(Gfx* dl, PlayerTransformation form)
             break;
     }
     
-    gDPSetEnvColor(dl++, color->r, color->g, color->b, 255);
+    gDPSetEnvColor(dl, color->r, color->g, color->b, 255);
 
+    // let PMM handle tunic color
     if (is_player_model_manager_loaded) {
         PlayerModelManager_requestOverrideFormTunicColor(form, color->r, color->g, color->b, 255);
+        gSPEndDisplayList(dl);
     }
 
+    dl++;
     return dl;
 }
 
